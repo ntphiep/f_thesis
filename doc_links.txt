@@ -1,0 +1,15 @@
+https://arxiv.org/abs/2109.15144
+https://arxiv.org/pdf/1804.06437
+https://github.com/lijuncen/Sentiment-and-Style-Transfer
+https://github.com/shrimai/Style-Transfer-Through-Back-Translation
+https://github.com/facebookresearch/MultipleAttributeTextRewriting
+https://github.com/fastnlp/style-transformer
+
+
+
+https://arxiv.org/pdf/2109.15144 - A Review of Text Style Transfer using DeepLearning
+https://arxiv.org/pdf/1804.06437 - A Simple Approach to Sentiment and Style Transfer
+https://arxiv.org/abs/1905.05621 - Style Transformer: Unpaired Text Style Transfer without Disentangled Latent Representation
+https://arxiv.org/abs/2406.05885 - Are Large Language Models Actually Good at Text Style Transfer?
+https://huggingface.co/Redgalaxy2/vit5-base-text-style-transfer/tree/main 
+https://huggingface.co/heegyu/kobart-text-style-transfer/tree/main
