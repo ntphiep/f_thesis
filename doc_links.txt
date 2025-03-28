@@ -14,3 +14,4 @@ https://arxiv.org/abs/2406.05885 - Are Large Language Models Actually Good at Te
 https://huggingface.co/Redgalaxy2/vit5-base-text-style-transfer/tree/main 
 https://huggingface.co/heegyu/kobart-text-style-transfer/tree/main
 https://github.com/PrithivirajDamodaran/Styleformer
+https://arxiv.org/pdf/2010.05700 - Reformulating Unsupervised Style Transfer as Paraphrase Generation
