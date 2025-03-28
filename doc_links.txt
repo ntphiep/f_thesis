@@ -13,3 +13,4 @@ https://arxiv.org/abs/1905.05621 - Style Transformer: Unpaired Text Style Transf
 https://arxiv.org/abs/2406.05885 - Are Large Language Models Actually Good at Text Style Transfer?
 https://huggingface.co/Redgalaxy2/vit5-base-text-style-transfer/tree/main 
 https://huggingface.co/heegyu/kobart-text-style-transfer/tree/main
+https://github.com/PrithivirajDamodaran/Styleformer
