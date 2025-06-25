@@ -1,5 +1,5 @@
 {
-  "name": "squash-demo",
+  "name": "vi-stp-demo",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
@@ -40,6 +40,7 @@
     ]
   },
   "devDependencies": {
+    "@types/reactstrap": "^8.7.1",
     "cross-env": "^7.0.3"
   }
 }

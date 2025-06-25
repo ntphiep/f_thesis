@@ -7,4 +7,4 @@ import './toggle.css'
 import SquashDemo from './app';
 
 
-ReactDOM.render(<SquashDemo />, document.getElementById('root'));
+ReactDOM.render(< SquashDemo />, document.getElementById('root'));

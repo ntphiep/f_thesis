@@ -58,19 +58,19 @@ def request_strap_doc():
     form_data["key"] = keygen
     form_data["input_text"] = " ".join(form_data["input_text"].split())
 
-    with open(OUTPUT_DIR + "/generated_outputs/queue/queue.txt", "a") as f:
-        f.write("%s\n" % keygen)
+    # with open(OUTPUT_DIR + "/generated_outputs/queue/queue.txt", "a") as f:
+    #     f.write("%s\n" % keygen)
 
-    os.mkdir(OUTPUT_DIR + "/generated_outputs/inputs/%s" % keygen)
+    # os.mkdir(OUTPUT_DIR + "/generated_outputs/inputs/%s" % keygen)
 
-    with open(OUTPUT_DIR + "/generated_outputs/inputs/%s/metadata.json" % keygen, "w") as f:
-        f.write(json.dumps(form_data))
+    # with open(OUTPUT_DIR + "/generated_outputs/inputs/%s/metadata.json" % keygen, "w") as f:
+    #     f.write(json.dumps(form_data))
 
-    with open(OUTPUT_DIR + "/generated_outputs/inputs/%s/written.txt" % keygen, "w") as f:
-        f.write("True")
+    # with open(OUTPUT_DIR + "/generated_outputs/inputs/%s/written.txt" % keygen, "w") as f:
+    #     f.write("True")
 
     response = flask.jsonify({
-        "new_id": keygen
+        "new_id": "deptrai"
     })
 
     response.headers.add('Access-Control-Allow-Origin', '*')
