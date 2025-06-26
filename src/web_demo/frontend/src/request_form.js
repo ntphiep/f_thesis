@@ -53,6 +53,8 @@ function RequestForm(props) {
 
   const [inputValue, setInputValue] = React.useState("");
 
+  const isButtonDisabled = !(inputValue && props.targetStyle);
+
   return (
     <Form>
       <div className="precomputed-div">
@@ -74,7 +76,7 @@ function RequestForm(props) {
       <Input type="textarea" style={{ height: "100px" }} name="text" id="strapInputText" rows="2" value={inputValue} onChange={(value) => {
         setInputValue(value.currentTarget.value);
       }} />
-      <FormText>Don't know what to type? Try the "use a random sentence" option or explore samples from our <a href="s3://hiep-delta-bk/chunks_out_c/"> dataset</a> on S3.</FormText>
+      <FormText>Don't know what to type? Try "choose an example" option or explore samples from our <a href="s3://hiep-delta-bk/chunks_out_c/"> dataset</a> on S3.</FormText>
       <hr />
       <div className="precomputed-div">
         Transfer sentences to the target style&nbsp;&nbsp;
@@ -82,7 +84,7 @@ function RequestForm(props) {
           <DropdownToggle color="info" caret>
             {props.targetStyle === null ? "choose a target style" : props.targetStyle}
           </DropdownToggle>
-          <DropdownMenu>
+          <DropdownMenu id="style-dropdown-menu">
             <DropdownItem onClick={() => props.toggleStyle("Casual")}>Casual</DropdownItem>
             <DropdownItem onClick={() => props.toggleStyle("Coarse")}>Coarse</DropdownItem>
             <DropdownItem onClick={() => props.toggleStyle("Formal")}>Formal</DropdownItem>
@@ -108,8 +110,7 @@ function RequestForm(props) {
 
       <br />
       <br />
-      
-      
+    
 
       Style transfer top-p sampling value = {props.settings.top_p_style}
       <br />
@@ -127,7 +128,7 @@ function RequestForm(props) {
       <FormText>Increasing the p value results in more diverse stylistic properties, but at the expense of content preservation. Experiment with this slider to get the desired output, you will get different output samples on each run for larger p values. Some styles seem to benefit from higher p values like 0.6 and 0.9 .</FormText>
       <hr />
 
-      <Button color="primary" onClick={props.transferSentence}><span>Transfer!</span></Button>
+      <Button color="primary" onClick={props.transferSentence} disabled={isButtonDisabled}><span>Transfer!</span></Button>
     </Form>
   );
 }

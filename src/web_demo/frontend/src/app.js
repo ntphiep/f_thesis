@@ -1,16 +1,7 @@
 import React from 'react';
 import {
-  // Badge,
-  // Container,
   Col,
   Row,
-  // Button,
-  // Form,
-  // Input,
-  // Card,
-  // Table,
-  // FormText,
-  // Dropdown, DropdownToggle, DropdownMenu, DropdownItem,
 } from 'reactstrap';
 import StyleOutput from './output.js';
 import RequestForm from './request_form.js';
@@ -20,7 +11,7 @@ import { Helmet } from 'react-helmet'
 // import Toggle from 'react-toggle'
 
 
-ReactGA.initialize('UA-144025713-1');
+ReactGA.initialize('xxx');
 
 
 function QueueNumber(props) {
@@ -137,6 +128,8 @@ class SquashDemo extends React.Component {
   toggleStyle(targetStyle) {
     this.setState({
       targetStyle: targetStyle
+    }, () => {
+      console.log("Target style updated to:", this.state.targetStyle);
     });
   }
 
@@ -145,14 +138,17 @@ class SquashDemo extends React.Component {
     var flags = {
       method: 'POST',
       body: JSON.stringify({
-        settings: this.state.settings,
         input_text: document.getElementById('strapInputText').value,
-        random: random_sentence,
-        target_style: this.state.targetStyle
+        target_style: this.state.targetStyle,
+        top_p_style: this.state.settings.top_p_style
       })
     };
     fetch(url, flags).then(res => res.json()).then((result) => {
-      window.location.href = '/?id=' + result.new_id + '&random=' + random_sentence;
+      this.setState({
+        output_data: result,
+        queue_number: 0,
+        status: null
+      });
     }, (error) => {
       console.log(error);
     })
@@ -189,7 +185,7 @@ class SquashDemo extends React.Component {
               <RequestForm
                 settings={this.state.settings}
                 changeSliderParaphrase={(e) => this.changeSlider(e, 'top_p_paraphrase')}
-                changeSliderStyle={(e) => this.changeSlider(e, 'top_p_style')}
+                changeSliderStyle={(e)   => this.changeSlider(e, 'top_p_style')}
                 transferSentence={() => this.transferSentence()}
                 styleDropDownOpen={this.state.styleDropDownOpen}
                 toggleStyleDropDown={() => this.toggleStyleDropDown()}
