@@ -14,6 +14,9 @@ for model_name in ["casual", "chinese", "coarse", "formal"]:
     model = AutoModelForSeq2SeqLM.from_pretrained(model_path)
     tokenizer = AutoTokenizer.from_pretrained(model_path)
     MODELS[model_name] = (model, tokenizer)
+    
+ 
+ 
  
 def generate_summary(text, model_name, top_p=0.7):
     model, tokenizer = MODELS[model_name]
@@ -32,26 +35,43 @@ def generate_summary(text, model_name, top_p=0.7):
 
 
 
-@app.post("/generate")
-def generate_text(req: ParaphraseRequest):
-    if req.model_name not in MODELS:
-        return {"error": f"Model {req.model_name} not found."}
-    
-    tokenizer = MODELS[req.model_name]["tokenizer"]
-    model = MODELS[req.model_name]["model"]
+# BLEU
+def evaluate_bleu(predictions, references):
+    bleu = sacrebleu.corpus_bleu(predictions, [references])
+    return bleu.score
 
-    input_ids = tokenizer(
-        req.text, return_tensors="pt", truncation=True, padding=True, max_length=256
-    ).input_ids
+# ROUGE
+def evaluate_rouge(predictions, references):
+    rouge = evaluate.load("rouge")
+    results = rouge.compute(predictions=predictions, references=references)
+    return results
 
-    with torch.no_grad():
-        output = model.generate(
-            input_ids=input_ids,
-            max_length=req.max_length,
-            do_sample=True,
-            top_p=req.top_p,
-            temperature=req.temperature
-        )
+# BERTScore 
+def evaluate_bertscore(predictions, references):
+    bertscore = evaluate.load("bertscore")
+    results = bertscore.compute(predictions=predictions, references=references, lang="vi", rescale_with_baseline=True)
+    return sum((results["f1"]) / len(results["f1"])) if results["f1"] else 0.0
+
+# METEOR
+def evaluate_meteor(predictions, references):
+    meteor = evaluate.load("meteor")
+    results = meteor.compute(predictions=predictions, references=references)
+    return results
+
+
+input_text = [
+    "Việc chữ sida trùng với tên gọi căn bệnh SIDA AIDS chỉ là ngẫu nhiên .",
+    "Tình hình đó buộc McAthur phải ra lệnh cho quân Mỹ và quân Nam Triều Tiên rút lui toàn bộ .",
+    "Bệnh dịch này, hễ xâm nhập vào trư tộc, tốc độ lây lan cực kỳ nhanh chóng, không phân biệt chủng loại, một khi nhiễm bệnh, tỷ lệ tử vong đạt đến bách phần bách.",
+    "Tại Malaysia, yếu tố sắc tộc có ảnh hưởng đáng kể đến hoạt động chính trị, thể hiện qua việc nhiều chính đảng được xây dựng dựa trên nền tảng dân tộc.",
+    "Quân nổi dậy của thằng Castro nó chiếm mẹ thủ đô ngày 3 tháng 1 năm 1959 rồi."
     
-    result = tokenizer.decode(output[0], skip_special_tokens=True)
-    return {"output": result}
+]
+output_text = [generate_summary(i, "casual") for i in input_text]
+
+
+
+# 3. Đánh giá bằng BERTScore
+bertscore = evaluate.load("bertscore")
+bert_score = bertscore.compute(predictions=output_text, references=input_text, lang="vi")
+print("BERTScore (F1):", sum(bert_score['f1']) / len(bert_score['f1']))

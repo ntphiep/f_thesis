@@ -10,9 +10,37 @@ import math
 from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
 import sacrebleu
 import evaluate
-from sklearn.metrics import pairwise_distances
+
+# BLEU
+def evaluate_bleu(predictions, references):
+    bleu = sacrebleu.corpus_bleu(predictions, [references])
+    return bleu.score
+
+# ROUGE
+def evaluate_rouge(predictions, references):
+    rouge = evaluate.load("rouge")
+    results = rouge.compute(predictions=predictions, references=references)
+    return results
+
+# BERTScore 
+def evaluate_bertscore(predictions, references):
+    bertscore = evaluate.load("bertscore")
+    results = bertscore.compute(predictions=predictions, references=references, lang="vi")
+    return sum((results["f1"])) / len(results["f1"]) if results["f1"] else 0.0
+
+# METEOR
+def evaluate_meteor(predictions, references):
+    meteor = evaluate.load("meteor")
+    results = meteor.compute(predictions=predictions, references=references)
+    return results
+
 
 MODELS = {}
+app = Flask(__name__)
+
+with open("../config.json", "r") as f:
+    configuration = json.loads(f.read())
+    OUTPUT_DIR = configuration["output_dir"]
 
 for model_name in ["casual", "chinese", "coarse", "formal"]:
     model_path = f"./models/{model_name}/checkpoint-24258"
@@ -34,11 +62,6 @@ def generate_summary(text, model_name, top_p=0.7):
     )
     return tokenizer.decode(summary_ids[0], skip_special_tokens=True)
  
-app = Flask(__name__)
-
-with open("../config.json", "r") as f:
-    configuration = json.loads(f.read())
-    OUTPUT_DIR = configuration["output_dir"]
 
 
 @app.route('/get_strap_doc', methods=['GET'])
@@ -79,31 +102,27 @@ def get_strap_doc():
 @app.route('/request_strap_doc', methods=['POST'])
 def request_strap_doc():
     form_data = json.loads(request.data.decode('utf-8'))
-    keygen = secrets.token_hex(12)
 
-    # form_data["timestamp"] = str(datetime.datetime.now())
-    # form_data["key"] = keygen
-    # form_data["input_text"] = " ".join(form_data["input_text"].split())
-
-    # with open(OUTPUT_DIR + "/generated_outputs/queue/queue.txt", "a") as f:
-    #     f.write("%s\n" % keygen)
-
-    # os.mkdir(OUTPUT_DIR + "/generated_outputs/inputs/%s" % keygen)
-
-    # with open(OUTPUT_DIR + "/generated_outputs/inputs/%s/metadata.json" % keygen, "w") as f:
-    #     f.write(json.dumps(form_data))
-
-    # with open(OUTPUT_DIR + "/generated_outputs/inputs/%s/written.txt" % keygen, "w") as f:
-    #     f.write("True")
 
     output = generate_summary(
         form_data["input_text"],
         str(form_data["target_style"]).lower(),
-        top_p=form_data["settings"]["top_p_style"]
+        top_p=form_data["top_p_style"]
     )
+    
+    bleu_score = evaluate_bleu([output], [form_data["input_text"]])
+    rouge_score = evaluate_rouge([output], [form_data["input_text"]])
+    bertscore = evaluate_bertscore([output], [form_data["input_text"]])
+    meteor_score = evaluate_meteor([output], [form_data["input_text"]])
+
 
     response = flask.jsonify({
-        "new_id": output
+        "input_text": form_data["input_text"],
+        "output_text": output,
+        "bleu_score": bleu_score,
+        "rouge_score": rouge_score["rougeLsum"],
+        "bertscore": bertscore,
+        "meteor_score": meteor_score["meteor"],
     })
 
     response.headers.add('Access-Control-Allow-Origin', '*')
