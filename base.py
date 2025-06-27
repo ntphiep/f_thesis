@@ -3,7 +3,7 @@ from google import genai
 import time
 
 
-client = genai.Client(api_key="AIzaSyBeq62Pg1yKQ6CFXMDR8g1WCMxpm4m5yY8")
+client = genai.Client(api_key="")
 # chat = client.chats.create(model="gemini-2.0-flash")
 
 def gen(text):
