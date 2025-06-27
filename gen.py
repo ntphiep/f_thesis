@@ -8,7 +8,7 @@ import re
 from tenacity import retry, stop_after_attempt, wait_fixed
 
 
-client = genai.Client(api_key="AIzaSyBeq62Pg1yKQ6CFXMDR8g1WCMxpm4m5yY8")
+client = genai.Client(api_key="")
 # chat = client.chats.create(model="gemini-2.0-flash")
 
 if len(sys.argv) > 1:
