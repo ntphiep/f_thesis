@@ -6,8 +6,8 @@ import time
 def run_script(suffix):
     subprocess.run(["python", "gen.py", suffix])  
 
-start = 210
-end = start + 10
+start = 253
+end = start + 3
 pools = 100
 
 suffixes = [f"{i:04d}" for i in range(start, end)]  
