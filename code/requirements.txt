@@ -1,0 +1,7 @@
+transformers==4.49.0
+datasets
+evaluate
+scikit-learn
+sentencepiece
+accelerate
+sagemaker

@@ -1,4 +1,7 @@
 models/
 chunks_out/
 chunks/
-model_coarse/
+coarse/
+casual/
+formal/
+chinese/
