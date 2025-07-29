@@ -1,7 +1,7 @@
 import sagemaker
 from sagemaker.huggingface import HuggingFace
 
-role = "arn:aws:iam::014498663963:role/service-role/AmazonSageMaker-ExecutionRole-20250504T220510"
+role = "<My IAM Role ARN>"
 
 huggingface_estimator = HuggingFace(
     entry_point='train.py',
@@ -14,14 +14,14 @@ huggingface_estimator = HuggingFace(
     py_version='py311',
     hyperparameters={
         'model_name': 'VietAI/vit5-base',
-        'dataset_name': 'ntphiep/vit5-tst-data-casual',  # HuggingFace dataset
+        'dataset_name': 'ntphiep/vit5-tst-data-casual',  
         'epochs': 2,
         'per_device_train_batch_size': 8
     },
     base_job_name='vit5-finetune',
     disable_profiler=True,
     max_run=3600*3,
-    output_path='s3://hiep-delta-bk/models/'
+    output_path='s3://hiep-delta-bk/models/sg/'
 )
 
 huggingface_estimator.fit()

@@ -3,8 +3,6 @@ from datasets import load_dataset
 from transformers import (
     T5ForConditionalGeneration,
     T5Tokenizer,
-    Trainer,
-    TrainingArguments,
     DataCollatorForSeq2Seq, Seq2SeqTrainer,
     Seq2SeqTrainingArguments,
 )
@@ -55,7 +53,7 @@ def main():
         load_best_model_at_end=True,
         report_to=None,
         group_by_length=True,
-        #fp16=True,
+        fp16=True,
     )
 
     trainer = Seq2SeqTrainer(
