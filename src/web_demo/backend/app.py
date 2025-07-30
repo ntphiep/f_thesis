@@ -44,8 +44,22 @@ with open("../config.json", "r") as f:
 
 for model_name in ["casual", "chinese", "coarse", "formal"]:
     model_path = f"./models/{model_name}/checkpoint-24258"
-    model = AutoModelForSeq2SeqLM.from_pretrained(model_path)
-    tokenizer = AutoTokenizer.from_pretrained(model_path)
+    
+    # Check if local model exists, otherwise use HuggingFace model as fallback
+    if os.path.exists(model_path):
+        model = AutoModelForSeq2SeqLM.from_pretrained(model_path)
+        tokenizer = AutoTokenizer.from_pretrained(model_path)
+    else:
+        # Fallback to HuggingFace model (if available)
+        fallback_model = f"ntphiep/viT5_tst_{model_name}"
+        try:
+            model = AutoModelForSeq2SeqLM.from_pretrained(fallback_model)
+            tokenizer = AutoTokenizer.from_pretrained(fallback_model)
+        except Exception as e:
+            print(f"Warning: Could not load model for {model_name}: {e}")
+            # Skip this model if both local and remote fail
+            continue
+    
     MODELS[model_name] = (model, tokenizer)
  
 def generate_summary(text, model_name, top_p=0.7):
