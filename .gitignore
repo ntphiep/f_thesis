@@ -5,3 +5,6 @@ coarse/
 casual/
 formal/
 chinese/
+__pycache__/
+*.pyc
+*.pyo
