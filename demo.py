@@ -1,24 +1,49 @@
-# # Load model directly
-# from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
+from datasets import load_dataset
+from transformers import pipeline
+import evaluate
 
-# tokenizer = AutoTokenizer.from_pretrained("ntphiep/viT5_tst_coarse")
-# model = AutoModelForSeq2SeqLM.from_pretrained("ntphiep/viT5_tst_coarse")
+# --- Config ---
+dataset_name = "ntphiep/vit5-tst-data-casual"   # thay bằng tên dataset thật
+model_name = "ntphiep/viT5_tst_casual"       # thay bằng tên model thật
+num_samples = 30
 
-# def generate_summary(text):
-#     inputs = tokenizer(text, return_tensors="pt", truncation=True).to(model.device)
-#     summary_ids = model.generate(**inputs, max_length=256, num_beams=5, early_stopping=True)
-#     return tokenizer.decode(summary_ids[0], skip_special_tokens=True)
+# Load dataset
+dataset = load_dataset(dataset_name, split="train")
 
+# Lấy 30 câu mẫu
+samples = dataset.select(range(num_samples))
+inputs = samples["input"]
+references = samples["target"]
 
-# sample_text = """
-# tôi không hiểu tại sao mọi người lại thích ăn phở đến vậy.
-# """
+# Load model pipeline
+generator = pipeline("text2text-generation", model=model_name)
 
-# output = generate_summary(sample_text)
-# print("👉 Output:", output)
+# Sinh output
+predictions = [
+    generator(text, max_length=128, clean_up_tokenization_spaces=True)[0]['generated_text']
+    for text in inputs
+]
 
+# Load metrics
+rouge = evaluate.load("rouge")
+bleu = evaluate.load("bleu")
+meteor = evaluate.load("meteor")
+bertscore = evaluate.load("bertscore")
 
-from transformers import AutoTokenizer
+# Compute metrics
+rouge_result = rouge.compute(predictions=predictions, references=references)
+bleu_result = bleu.compute(
+    predictions=[p.split() for p in predictions],
+    references=[[r.split()] for r in references]
+)
+meteor_result = meteor.compute(predictions=predictions, references=references)
+bertscore_result = bertscore.compute(predictions=predictions, references=references, lang="vi")
 
-tokenizer = AutoTokenizer.from_pretrained("ntphiep/viT5_tst_coarse")
-print(tokenizer("trời hôm nay đẹp thật"))
+# Print results
+print("=== Evaluation Results ===")
+print(f"ROUGE-1: {rouge_result['rouge1']:.4f}")
+print(f"ROUGE-2: {rouge_result['rouge2']:.4f}")
+print(f"ROUGE-L: {rouge_result['rougeL']:.4f}")
+print(f"BLEU: {bleu_result['bleu']:.4f}")
+print(f"METEOR: {meteor_result['meteor']:.4f}")
+print(f"BERTScore F1: {sum(bertscore_result['f1'])/len(bertscore_result['f1']):.4f}")
