@@ -1,4 +1,3 @@
-from flask import cli
 from google import genai
 import time
 
@@ -53,7 +52,7 @@ def main():
         
         try:
             process_batch(batch, i)
-            print("\n" + "="*50 + "\n")  # Separatoif __name__ == "__main__":
+            print("\n" + "="*50 + "\n")  # Separator
             
             time.sleep(1)  # Sleep for 1 second between batches
         
