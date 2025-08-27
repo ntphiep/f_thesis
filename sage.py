@@ -1,7 +1,7 @@
 import sagemaker
 from sagemaker.huggingface import HuggingFace
 
-role = "<My IAM Role ARN>"
+role = "arn:aws:iam::014498663963:role/service-role/AmazonSageMaker-ExecutionRole-20250504T220510"
 
 huggingface_estimator = HuggingFace(
     entry_point='train.py',
@@ -14,7 +14,7 @@ huggingface_estimator = HuggingFace(
     py_version='py311',
     hyperparameters={
         'model_name': 'VietAI/vit5-base',
-        'dataset_name': 'ntphiep/vit5-tst-data-casual',  
+        'dataset_name': 'ntphiep/vit5-tst-data-coarse',  
         'epochs': 2,
         'per_device_train_batch_size': 8
     },

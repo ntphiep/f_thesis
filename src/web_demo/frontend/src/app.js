@@ -10,6 +10,9 @@ import ReactGA from 'react-ga';
 import { Helmet } from 'react-helmet'
 // import Toggle from 'react-toggle'
 
+import Review from './Review.js';
+import Footer from './Footer.js';
+
 
 ReactGA.initialize('xxx');
 
@@ -155,53 +158,86 @@ class SquashDemo extends React.Component {
   }
 
   render() {
-    var squash_loaded = false;
-    if (this.state.output_data != null) {
-      squash_loaded = true;
-    }
-    return (
-      <div className="container-fluid">
-        <Helmet>
-          <meta charSet="utf-8" />
-          <title>Vietnamese STP</title>
-        </Helmet>
-        <Row>
-          <Col md={{ order: 2, size: 5 }} xs={{ order: 1 }}>
-            <h3>Vietnamese Style Transfer Paraphrase</h3>
-            <p>This system rewrites text using a specified target style while preserving semantic information. <br /> 
-              Note that we are not performing any filtering on our model outputs
-              and they might occasionally be biased or contains obscene language. <br />
+    var squash_loaded = this.state.output_data != null;
 
-              The source code for the demo can be found <a href="https://github.com/ntphiep/f_thesis">here</a>.
-              </p>
-          </Col>
-          <Col md={{ order: 2, size: 7 }} xs={{ order: 2 }}>
-          </Col>
-        </Row>
-        <Row>
-          <Col md={{ order: 2, size: 5 }} xs={{ order: 2 }}>
-            <div>
-              <hr />
-              <RequestForm
-                settings={this.state.settings}
-                changeSliderParaphrase={(e) => this.changeSlider(e, 'top_p_paraphrase')}
-                changeSliderStyle={(e)   => this.changeSlider(e, 'top_p_style')}
-                transferSentence={() => this.transferSentence()}
-                styleDropDownOpen={this.state.styleDropDownOpen}
-                toggleStyleDropDown={() => this.toggleStyleDropDown()}
-                targetStyle={this.state.targetStyle}
-                toggleStyle={(e) => this.toggleStyle(e)}
-                toggleExamplesDropDown={() => this.toggleDropDown()}
-                transferSentenceRandom={() => this.transferSentence(true)}
-                dropdownOpen={this.state.dropdownOpen}
-              />
-            </div>
-          </Col>
-          <Col md={{ order: 2, size: 7 }} xs={{ order: 1 }}>
-            {squash_loaded && <StyleOutput output_data={this.state.output_data} />}
-            {this.state.queue_number !== null && this.state.queue_number !== 0 && <QueueNumber queue_number={this.state.queue_number} status={this.state.status} />}
-          </Col>
-        </Row>
+    // Dummy response for testing
+    const setDummyResponse = () => {
+      this.setState({
+        output_data: {
+          output_text: 'Đây là kết quả paraphrase mẫu.',
+          bleu_score: '0.85',
+          rouge_score: '0.80',
+          meteor_score: '0.75',
+          bertscore: '0.90'
+        },
+        queue_number: 0,
+        status: null
+      });
+    };
+
+    return (
+      <div style={{ zoom: 1.2 }}>
+        <div className="container-fluid">
+          <Helmet>
+            <meta charSet="utf-8" />
+            <title>Vietnamese STP</title>
+          </Helmet>
+          <Row>
+            <Col md={{ order: 1, size: 6 }} xs={{ order: 1 }}>
+              <h3>Vietnamese Style Transfer Paraphrase</h3>
+              <p>This system rewrites text using a specified target style while preserving semantic information. <br /> 
+                Note that we are not performing any filtering on our model outputs
+                and they might occasionally be biased or contains obscene language. <br />
+
+                The source code for the demo can be found <a href="https://github.com/ntphiep/f_thesis">here</a>.
+                </p>
+              {/* Button to set dummy response for testing */}
+              <button onClick={setDummyResponse} style={{marginBottom: '10px'}}>Test Output & Review</button>
+
+              
+            </Col>
+            <Col md={{ order: 2, size: 6 }} xs={{ order: 2 }}>
+            </Col>
+          </Row>
+          <Row>
+            <Col md={{ order: 1, size: 6 }} xs={{ order: 2 }}>
+              <div>
+                <hr />
+                <RequestForm
+                  settings={this.state.settings}
+                  changeSliderParaphrase={(e) => this.changeSlider(e, 'top_p_paraphrase')}
+                  changeSliderStyle={(e)   => this.changeSlider(e, 'top_p_style')}
+                  transferSentence={() => this.transferSentence()}
+                  styleDropDownOpen={this.state.styleDropDownOpen}
+                  toggleStyleDropDown={() => this.toggleStyleDropDown()}
+                  targetStyle={this.state.targetStyle}
+                  toggleStyle={(e) => this.toggleStyle(e)}
+                  toggleExamplesDropDown={() => this.toggleDropDown()}
+                  transferSentenceRandom={() => this.transferSentence(true)}
+                  dropdownOpen={this.state.dropdownOpen}
+                />
+              </div>
+            </Col>
+            <Col md={{ order: 2, size: 6 }} xs={{ order: 1 }}>
+              {squash_loaded && <StyleOutput output_data={this.state.output_data} />}
+              {this.state.queue_number !== null && this.state.queue_number !== 0 && <QueueNumber queue_number={this.state.queue_number} status={this.state.status} />}
+              {/* Blurred line separator between output and review */}
+              {squash_loaded && (
+                <div style={{
+                  width: '100%',
+                  height: '1px',
+                  background: 'linear-gradient(90deg, rgba(141, 140, 140, 0.3) 0%, rgba(200,200,200,0.7) 50%, rgba(200,200,200,0.3) 100%)',
+                  borderRadius: '2px',
+                  margin: '24px 0 24px 0',
+                  filter: 'blur(0.3px)'
+                }} />
+              )}
+              {/* Show Review only when output_data is present */}
+              {squash_loaded && <Review />}
+            </Col>
+          </Row>
+        </div>
+        <Footer />
       </div>
     );
   }
