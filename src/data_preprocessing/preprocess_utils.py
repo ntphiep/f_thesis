@@ -75,18 +75,23 @@ def get_kendall_tau(x1, x2):
     return ktd, anomaly
 
 
+# Pre-compile regex for better performance
+_ARTICLE_PATTERN = re.compile(r'\b(a|an|the)\b')
+# Pre-create punctuation set to avoid recreating it on every call
+_PUNCTUATION_SET = set(string.punctuation)
+
 def normalize_answer(s):
     """Lower text and remove punctuation, articles and extra whitespace."""
 
     def remove_articles(text):
-        return re.sub(r'\b(a|an|the)\b', ' ', text)
+        return _ARTICLE_PATTERN.sub(' ', text)
 
     def white_space_fix(text):
         return ' '.join(text.split())
 
     def remove_punc(text):
-        exclude = set(string.punctuation)
-        return ''.join(ch for ch in text if ch not in exclude)
+        # Use pre-created set instead of creating it every time
+        return ''.join(ch for ch in text if ch not in _PUNCTUATION_SET)
 
     def lower(text):
         return text.lower()

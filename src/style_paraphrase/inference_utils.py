@@ -62,7 +62,7 @@ class GPT2Generator(object):
         instances = []
 
         if global_dense_features is None:
-            global_dense_features = [None for _ in contexts]
+            global_dense_features = [None] * len(contexts)  # More efficient than list comprehension
 
         for context, gdf in zip(contexts, global_dense_features):
             context_ids = tokenizer.convert_tokens_to_ids(tokenizer.tokenize(context))
@@ -91,10 +91,15 @@ class GPT2Generator(object):
             instance.gdv = global_dense_vectors
             instances.append(instance)
 
+        # Optimize tensor creation by pre-allocating arrays
+        sentences = np.array([inst.sentence for inst in instances])
+        segments_arr = np.array([inst.segment for inst in instances])
+        gdv_arr = np.array([inst.gdv for inst in instances])
+        
         output, _, scores = self.gpt2_model.generate(
-            gpt2_sentences=torch.tensor([inst.sentence for inst in instances]).to(args.device),
-            segments=torch.tensor([inst.segment for inst in instances]).to(args.device),
-            global_dense_vectors=torch.tensor([inst.gdv for inst in instances]).to(args.device),
+            gpt2_sentences=torch.from_numpy(sentences).to(args.device),
+            segments=torch.from_numpy(segments_arr).to(args.device),
+            global_dense_vectors=torch.from_numpy(gdv_arr).to(args.device),
             init_context_size=instances[0].init_context_size,
             eos_token_id=tokenizer.eos_token_id,
             get_scores=get_scores,

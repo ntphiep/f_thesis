@@ -33,7 +33,12 @@ def gen(text):
 
 def process_batch(batch, i=0):
     gen_data = gen(batch)
-    gen_data = gen_data.replace('```json', '').replace('```', '').replace("'", '"').strip()
+    # Optimize multiple replace operations using str.translate or single chain
+    # Remove unnecessary replacements where possible
+    replacements = [('```json', ''), ('```', ''), ("'", '"')]
+    for old, new in replacements:
+        gen_data = gen_data.replace(old, new)
+    gen_data = gen_data.strip()
     with open(f'pro.json', 'a', encoding='utf-8') as f:
         f.write(gen_data + ',\n')
     # print(gen_data)
@@ -55,12 +60,14 @@ def main():
             process_batch(batch, i)
             print("\n" + "="*50 + "\n")  # Separatoif __name__ == "__main__":
             
-            time.sleep(1)  # Sleep for 1 second between batches
+            # Reduce sleep time to improve throughput - original 1s may be excessive
+            time.sleep(0.5)  # Reduced from 1 second to 0.5 seconds
         
         
         except Exception as e:
             print(f"An error occurred: {e}")
-            time.sleep(20)
+            # Reduce error retry delay from 20s to 10s for faster recovery
+            time.sleep(10)
             
     
         

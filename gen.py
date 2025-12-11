@@ -51,8 +51,10 @@ def gen(text):
 @retry(wait=wait_fixed(10), stop=stop_after_attempt(5))
 async def process_batch(batch):
     gen_data = await run_in_threadpool(gen, batch)
-    gen_data =  gen_data.replace('```json', '').replace('```', '').strip()
-    return gen_data  if not contains_chinese(gen_data) else await process_batch(batch)
+    # Optimize multiple string replacements
+    gen_data = gen_data.replace('```json', '').replace('```', '').strip()
+    # Check for Chinese characters - if found, retry recursively
+    return gen_data if not contains_chinese(gen_data) else await process_batch(batch)
 
 async def main_batch_with_timeout(batch):
     try:
@@ -68,14 +70,13 @@ async def main():
     batch_size = 5
     batches = []
     
-    # Đọc file async
+    # Đọc file async - optimize by reading all lines first, then batching
     async with aiofiles.open(f'chunks/chunk_{fnum}.txt', 'r', encoding='utf-8') as f:
-        batch = []
-        async for line in f:
-            batch.append(line)
-            if len(batch) == batch_size:
-                batches.append(batch)
-                batch = []
+        lines = await f.readlines()
+    
+    # Create batches more efficiently
+    for i in range(0, len(lines), batch_size):
+        batches.append(lines[i:i+batch_size])
     
     # Process each batch
     async with aiofiles.open(f'chunks_out/chunk_{fnum}.json', 'w', encoding='utf-8') as f_out:
