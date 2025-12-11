@@ -23,7 +23,6 @@ def predict_fn(data, model_artifacts):
     # Use torch.no_grad() to disable gradient computation for inference
     with torch.no_grad():
         inputs = tokenizer(text, return_tensors="pt", truncation=True, padding=True).to(model.device)
-        # Use torch.inference_mode() for even better performance
         summary_ids = model.generate(**inputs, max_length=256, num_beams=5, early_stopping=True)
     
     return tokenizer.decode(summary_ids[0], skip_special_tokens=True)

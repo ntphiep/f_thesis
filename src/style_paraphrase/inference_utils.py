@@ -62,7 +62,7 @@ class GPT2Generator(object):
         instances = []
 
         if global_dense_features is None:
-            global_dense_features = [None] * len(contexts)  # More efficient than list comprehension
+            global_dense_features = [None] * len(contexts)  # Slightly more efficient than [None for _ in contexts]
 
         for context, gdf in zip(contexts, global_dense_features):
             context_ids = tokenizer.convert_tokens_to_ids(tokenizer.tokenize(context))
