@@ -84,19 +84,37 @@ random.seed(args.seed)
 # class EventHandler(FileSystemEventHandler):
 #     def on_any_event(self, event):
 def generation_service():
+    # Use exponential backoff for better CPU efficiency when queue is empty
+    empty_queue_sleep = 0.2
+    max_sleep = 2.0
+    
     while True:
-        with open(OUTPUT_DIR + "/generated_outputs/queue/queue.txt", "r") as f:
-            queue = f.read().strip()
-        if len(queue) == 0:
-            time.sleep(0.2)
+        try:
+            with open(OUTPUT_DIR + "/generated_outputs/queue/queue.txt", "r") as f:
+                queue = f.read().strip()
+        except FileNotFoundError:
+            time.sleep(empty_queue_sleep)
             continue
+            
+        if len(queue) == 0:
+            # Exponential backoff when queue is empty to reduce CPU usage
+            time.sleep(min(empty_queue_sleep, max_sleep))
+            empty_queue_sleep = min(empty_queue_sleep * 1.5, max_sleep)
+            continue
+        
+        # Reset sleep time when queue has items
+        empty_queue_sleep = 0.2
         next_key = queue.split("\n")[0]
 
         print("Style transferring %s" % next_key)
 
+        # More efficient polling with exponential backoff
+        wait_time = 0.05
+        max_wait = 0.5
         while not os.path.exists(OUTPUT_DIR + '/generated_outputs/inputs/%s/written.txt' % next_key):
             print("Waiting for {}/generated_outputs/inputs/{}/written.txt".format(OUTPUT_DIR, next_key))
-            time.sleep(0.1)
+            time.sleep(wait_time)
+            wait_time = min(wait_time * 1.5, max_wait)  # Exponential backoff
 
         with open(OUTPUT_DIR + '/generated_outputs/inputs/%s/metadata.json' % next_key, 'r') as f:
             data = json.loads(f.read())

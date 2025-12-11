@@ -66,18 +66,18 @@ class ParaphraseDatasetText(Dataset):
                 pickle.dump(self.examples, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
         # in case we are using a fraction of the dataset, reduce the size of the dataset here
-        self.examples = limit_dataset_size(self.examples, args.limit_examples)
+        datum_dicts = limit_dataset_size(self.examples, args.limit_examples)
 
-        # convert the dataset into the Instance class
-        self.examples = [
-            Instance(args, self.config, datum_dict) for datum_dict in self.examples
-        ]
-
-        for instance in self.examples:
-            # perform truncation, padding, label and segment building
+        # convert the dataset into the Instance class and preprocess in one pass
+        # This avoids creating all instances first then iterating again
+        self.examples = []
+        for datum_dict in datum_dicts:
+            instance = Instance(args, self.config, datum_dict)
             instance.preprocess(tokenizer)
+            self.examples.append(instance)
 
-        num_truncated = sum([x.truncated for x in self.examples])
+        # Use generator expression with sum for better memory efficiency
+        num_truncated = sum(x.truncated for x in self.examples)
         logger.info(
             "Total truncated instances due to length limit = {:d} / {:d}".format(num_truncated, len(self.examples))
         )
